@@ -1,0 +1,32 @@
+[
+  {
+    "file": "media_1789081100053.pdf",
+    "pages": 14,
+    "chars": 200,
+    "has_text": true
+  },
+  {
+    "file": "media_1789081100133.pdf",
+    "pages": 16,
+    "chars": 200,
+    "has_text": true
+  },
+  {
+    "file": "media_1789081100593.pdf",
+    "pages": 10,
+    "chars": 0,
+    "has_text": false
+  },
+  {
+    "file": "media_1789081446954.pdf",
+    "pages": 10,
+    "chars": 0,
+    "has_text": false
+  },
+  {
+    "file": "media_1789081473946.pdf",
+    "pages": 5,
+    "chars": 200,
+    "has_text": true
+  }
+]
