@@ -15,30 +15,42 @@ function HodgeDiamondCanvas() {
 
     let animId: number;
     let t = 0;
-    let w = canvas.clientWidth || 300;
-    let h = canvas.clientHeight || 200;
+    let w = 360;
+    let h = 320;
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        w = entry.contentRect.width;
-        h = entry.contentRect.height;
-        const dpr = window.devicePixelRatio || 1;
-        const displayW = Math.floor(w * dpr);
-        const displayH = Math.floor(h * dpr);
-        if (canvas.width !== displayW || canvas.height !== displayH) {
-          canvas.width = displayW;
-          canvas.height = displayH;
-        }
+    const updateDimensions = () => {
+      const parent = canvas.parentElement;
+      const rect = parent ? parent.getBoundingClientRect() : canvas.getBoundingClientRect();
+      const currentW = Math.max(280, Math.floor(rect.width || canvas.clientWidth || 360));
+      const currentH = Math.max(260, Math.floor(rect.height || canvas.clientHeight || 320));
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+      w = currentW;
+      h = currentH;
+
+      const displayW = Math.floor(w * dpr);
+      const displayH = Math.floor(h * dpr);
+      if (canvas.width !== displayW || canvas.height !== displayH) {
+        canvas.width = displayW;
+        canvas.height = displayH;
       }
+    };
+
+    updateDimensions();
+
+    const observer = new ResizeObserver(() => {
+      updateDimensions();
     });
+    if (canvas.parentElement) {
+      observer.observe(canvas.parentElement);
+    }
     observer.observe(canvas);
 
     const draw = () => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
 
-      if (w === 0 || h === 0) {
-        animId = requestAnimationFrame(draw);
-        return;
+      if (canvas.width === 0 || canvas.height === 0 || w === 0 || h === 0) {
+        updateDimensions();
       }
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -172,8 +184,8 @@ function HodgeDiamondCanvas() {
   }, []);
 
   return (
-    <div className="w-full h-full relative">
-      <canvas ref={canvasRef} className="w-full h-full block" />
+    <div className="w-full h-full relative flex items-center justify-center">
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
     </div>
   );
 }
@@ -368,7 +380,7 @@ export default function HodgeConjecture() {
             <div className="text-[11px] font-mono text-cyan-300">Central Hodge Spine Hdg^p(X)</div>
             <div className="text-[9px] font-mono text-slate-400">Harmonic Decomposition on Projective 3-Fold</div>
           </div>
-          <div className="w-full h-full min-h-[360px]">
+          <div className="w-full relative flex-1 min-h-[300px] sm:min-h-[360px] flex items-center justify-center">
             <HodgeDiamondCanvas />
           </div>
           <div className="p-4 bg-black/80 border-t border-cyan-500/10 text-xs font-mono text-slate-400 flex justify-between">
@@ -384,10 +396,10 @@ export default function HodgeConjecture() {
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex border-b border-slate-800 gap-6 text-sm font-mono font-medium">
+      <div className="flex items-center overflow-x-auto border-b border-slate-800 gap-4 sm:gap-6 text-xs sm:text-sm font-mono font-medium pb-2 scrollbar-none whitespace-nowrap">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`pb-3 transition-colors relative ${
+          className={`pb-2 transition-colors relative whitespace-nowrap cursor-pointer ${
             activeTab === 'overview' ? 'text-cyan-400' : 'text-slate-400 hover:text-slate-200'
           }`}
         >

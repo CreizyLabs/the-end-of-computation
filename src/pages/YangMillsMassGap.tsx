@@ -14,30 +14,42 @@ function YangMillsLatticeCanvas() {
 
     let animId: number;
     let t = 0;
-    let w = canvas.clientWidth || 300;
-    let h = canvas.clientHeight || 200;
+    let w = 360;
+    let h = 320;
 
-    const observer = new ResizeObserver((entries) => {
-      for (const entry of entries) {
-        w = entry.contentRect.width;
-        h = entry.contentRect.height;
-        const dpr = window.devicePixelRatio || 1;
-        const displayW = Math.floor(w * dpr);
-        const displayH = Math.floor(h * dpr);
-        if (canvas.width !== displayW || canvas.height !== displayH) {
-          canvas.width = displayW;
-          canvas.height = displayH;
-        }
+    const updateDimensions = () => {
+      const parent = canvas.parentElement;
+      const rect = parent ? parent.getBoundingClientRect() : canvas.getBoundingClientRect();
+      const currentW = Math.max(280, Math.floor(rect.width || canvas.clientWidth || 360));
+      const currentH = Math.max(260, Math.floor(rect.height || canvas.clientHeight || 320));
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+      w = currentW;
+      h = currentH;
+
+      const displayW = Math.floor(w * dpr);
+      const displayH = Math.floor(h * dpr);
+      if (canvas.width !== displayW || canvas.height !== displayH) {
+        canvas.width = displayW;
+        canvas.height = displayH;
       }
+    };
+
+    updateDimensions();
+
+    const observer = new ResizeObserver(() => {
+      updateDimensions();
     });
+    if (canvas.parentElement) {
+      observer.observe(canvas.parentElement);
+    }
     observer.observe(canvas);
 
     const draw = () => {
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
 
-      if (w === 0 || h === 0) {
-        animId = requestAnimationFrame(draw);
-        return;
+      if (canvas.width === 0 || canvas.height === 0 || w === 0 || h === 0) {
+        updateDimensions();
       }
 
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -148,7 +160,7 @@ function YangMillsLatticeCanvas() {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="w-full h-full block" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />;
 }
 
 // Live Interactive Karcher Convergence & Mass Gap Simulator
@@ -256,7 +268,7 @@ function KarcherSimulator() {
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
         <div className="bg-black/60 border border-slate-800 p-3 rounded-lg text-center">
           <div className="text-[11px] font-mono text-slate-400">Predicted Glueball m(0++)</div>
           <div className="text-xl font-mono font-bold text-emerald-400 mt-0.5">{massGapEstimate} MeV</div>
@@ -350,7 +362,7 @@ export default function YangMillsMassGap() {
             <div className="text-[11px] font-mono text-purple-300">4D Plaquette Lattice & Karcher Orbit</div>
             <div className="text-[9px] font-mono text-slate-400">Intrinsic Geodesic Center of Mass on SU(3)</div>
           </div>
-          <div className="w-full h-full min-h-[360px]">
+          <div className="w-full relative flex-1 min-h-[300px] sm:min-h-[360px] flex items-center justify-center">
             <YangMillsLatticeCanvas />
           </div>
           <div className="p-4 bg-black/80 border-t border-purple-500/10 text-xs font-mono text-slate-400 flex justify-between">
@@ -366,10 +378,10 @@ export default function YangMillsMassGap() {
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex border-b border-slate-800 gap-6 text-sm font-mono font-medium">
+      <div className="flex items-center overflow-x-auto border-b border-slate-800 gap-4 sm:gap-6 text-xs sm:text-sm font-mono font-medium pb-2 scrollbar-none whitespace-nowrap">
         <button
           onClick={() => setActiveTab('paper')}
-          className={`pb-3 border-b-2 transition-colors ${
+          className={`pb-2 border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
             activeTab === 'paper'
               ? 'border-purple-400 text-purple-300 font-bold'
               : 'border-transparent text-slate-400 hover:text-slate-200'

@@ -65,12 +65,12 @@ export const FullPaperSection: React.FC<FullPaperSectionProps> = ({
       return (
         <div
           key={pIdx}
-          className={`my-4 p-4 rounded-xl bg-black/50 border ${colors.border} space-y-2`}
+          className={`my-4 p-4 rounded-xl bg-black/50 border ${colors.border} space-y-2 break-words`}
         >
           <div className={`font-mono text-xs font-bold uppercase tracking-wider ${colors.accent}`}>
             Formal Assertion
           </div>
-          <div className="text-slate-100 font-medium text-sm leading-relaxed">
+          <div className="text-slate-100 font-medium text-sm leading-relaxed break-words">
             {text}
           </div>
         </div>
@@ -81,7 +81,7 @@ export const FullPaperSection: React.FC<FullPaperSectionProps> = ({
       return (
         <div
           key={pIdx}
-          className="my-3 pl-4 border-l-2 border-slate-700 bg-black/30 py-2 pr-3 rounded-r-lg text-xs font-mono text-slate-300 leading-relaxed"
+          className="my-3 pl-4 border-l-2 border-slate-700 bg-black/30 py-2 pr-3 rounded-r-lg text-xs font-mono text-slate-300 leading-relaxed break-words"
         >
           {text}
         </div>
@@ -92,7 +92,7 @@ export const FullPaperSection: React.FC<FullPaperSectionProps> = ({
       return (
         <div
           key={pIdx}
-          className="my-3 p-3 rounded-lg bg-black/60 border border-slate-800 text-center font-mono text-sm text-cyan-300 overflow-x-auto"
+          className="my-3 p-3 rounded-lg bg-black/60 border border-slate-800 text-center font-mono text-xs sm:text-sm text-cyan-300 overflow-x-auto break-all"
         >
           {text}
         </div>
@@ -100,14 +100,14 @@ export const FullPaperSection: React.FC<FullPaperSectionProps> = ({
     }
 
     return (
-      <p key={pIdx} className="text-slate-200 text-sm sm:text-base leading-relaxed">
+      <p key={pIdx} className="text-slate-200 text-sm sm:text-base leading-relaxed break-words">
         {text}
       </p>
     );
   };
 
   return (
-    <article className="w-full mt-16 bg-slate-950/40 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 sm:p-12 shadow-2xl space-y-12">
+    <article className="w-full mt-12 sm:mt-16 bg-slate-950/40 backdrop-blur-md border border-slate-800/80 rounded-2xl sm:rounded-3xl p-4 sm:p-10 shadow-2xl space-y-10 sm:space-y-12">
       {/* Paper Header */}
       <header className="space-y-6 border-b border-slate-800/80 pb-8">
         <div className="flex flex-wrap items-center justify-between gap-3">

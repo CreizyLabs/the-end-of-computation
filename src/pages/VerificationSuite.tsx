@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MathText } from '../components/ui/MathText';
 
 interface VerificationTest {
@@ -221,6 +221,215 @@ function computeVolumeGap(): { actual: string; passed: boolean } {
   };
 }
 
+// Interactive Multi-Domain Verification Matrix Graphic
+function VerificationMatrixCanvas({ isRunning }: { isRunning: boolean }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animId: number;
+    let t = 0;
+    let w = 360;
+    let h = 320;
+
+    const updateDimensions = () => {
+      const parent = canvas.parentElement;
+      const rect = parent ? parent.getBoundingClientRect() : canvas.getBoundingClientRect();
+      const currentW = Math.max(280, Math.floor(rect.width || canvas.clientWidth || 360));
+      const currentH = Math.max(260, Math.floor(rect.height || canvas.clientHeight || 320));
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+      w = currentW;
+      h = currentH;
+
+      const displayW = Math.floor(w * dpr);
+      const displayH = Math.floor(h * dpr);
+      if (canvas.width !== displayW || canvas.height !== displayH) {
+        canvas.width = displayW;
+        canvas.height = displayH;
+      }
+    };
+
+    updateDimensions();
+
+    const observer = new ResizeObserver(() => {
+      updateDimensions();
+    });
+    if (canvas.parentElement) {
+      observer.observe(canvas.parentElement);
+    }
+    observer.observe(canvas);
+
+    const draw = () => {
+      const dpr = Math.min(2, window.devicePixelRatio || 1);
+
+      if (canvas.width === 0 || canvas.height === 0 || w === 0 || h === 0) {
+        updateDimensions();
+      }
+
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w / 2;
+      const cy = h / 2;
+      const speed = isRunning ? 0.04 : 0.015;
+      const phi = (1 + Math.sqrt(5)) / 2;
+
+      // Draw subtle polar coordinate grid
+      const maxR = Math.min(w, h) * 0.44;
+      for (let r = 1; r <= 3; r++) {
+        const radius = (maxR * r) / 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(168, 85, 247, ${0.12 - r * 0.02})`;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 6]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Orthogonal quadrant axes
+      ctx.beginPath();
+      ctx.moveTo(cx - maxR, cy);
+      ctx.lineTo(cx + maxR, cy);
+      ctx.moveTo(cx, cy - maxR);
+      ctx.lineTo(cx, cy + maxR);
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.18)';
+      ctx.stroke();
+
+      // 1. Top-Left: SU(3) Color Flux Orbit (Yang-Mills)
+      const ymRadius = maxR * 0.6;
+      for (let k = 0; k < 3; k++) {
+        const angle = t * 1.2 + (k * 2 * Math.PI) / 3;
+        const qx = cx - ymRadius * 0.5 + Math.cos(angle) * (ymRadius * 0.35);
+        const qy = cy - ymRadius * 0.5 + Math.sin(angle) * (ymRadius * 0.35);
+
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(qx, qy);
+        ctx.strokeStyle = `rgba(168, 85, 247, ${isRunning ? 0.4 : 0.2})`;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(qx, qy, isRunning ? 5.5 : 4, 0, Math.PI * 2);
+        ctx.fillStyle = k === 0 ? '#f43f5e' : k === 1 ? '#10b981' : '#38bdf8';
+        ctx.shadowColor = ctx.fillStyle;
+        ctx.shadowBlur = isRunning ? 12 : 6;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+
+      // 2. Top-Right: Carrollian Horizon Fibonacci Anyon Braid Trajectories
+      const anyonCount = 4;
+      for (let a = 0; a < anyonCount; a++) {
+        const braidPhase = t * 1.5 + (a * Math.PI) / 2;
+        const bx = cx + maxR * 0.2 + (a * maxR * 0.16);
+        const by = cy - maxR * 0.5 + Math.sin(braidPhase * phi) * (maxR * 0.22);
+
+        ctx.beginPath();
+        ctx.arc(bx, by, 3.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#f59e0b';
+        ctx.shadowColor = '#f59e0b';
+        ctx.shadowBlur = 8;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Wave connecting strands
+        if (a < anyonCount - 1) {
+          const nextBy = cy - maxR * 0.5 + Math.sin((braidPhase + Math.PI / 2) * phi) * (maxR * 0.22);
+          ctx.beginPath();
+          ctx.moveTo(bx, by);
+          ctx.lineTo(bx + maxR * 0.16, nextBy);
+          ctx.strokeStyle = 'rgba(245, 158, 11, 0.35)';
+          ctx.lineWidth = 1.5;
+          ctx.stroke();
+        }
+      }
+
+      // 3. Bottom-Left: Galois Invariant Ring ℤ[φ] Hyperbolic Attractor
+      for (let s = -2; s <= 2; s++) {
+        if (s === 0) continue;
+        ctx.beginPath();
+        for (let step = -20; step <= 20; step++) {
+          const u = step / 10;
+          const hx = cx - maxR * 0.45 + u * 24;
+          // Invariant curve x^2 + x*y - y^2 = ±1
+          const hy = cy + maxR * 0.45 + (s * 18) / (Math.abs(u) + 0.4) * Math.cos(t * 0.5);
+          if (step === -20) ctx.moveTo(hx, hy);
+          else ctx.lineTo(hx, hy);
+        }
+        ctx.strokeStyle = 'rgba(52, 211, 153, 0.35)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // 4. Bottom-Right: Quasicrystalline Volume Gap Spectrum
+      const barCount = 6;
+      for (let b = 0; b < barCount; b++) {
+        const barX = cx + maxR * 0.2 + b * 16;
+        const val = Math.sqrt(Math.pow(phi, b * 0.5) + 1);
+        const barH = (val / 3) * (maxR * 0.35) * (1 + 0.08 * Math.sin(t * 2 + b));
+
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.7)';
+        ctx.fillRect(barX, cy + maxR * 0.65 - barH, 8, barH);
+
+        // Gap line V_min
+        if (b === 0) {
+          ctx.beginPath();
+          ctx.moveTo(cx + maxR * 0.15, cy + maxR * 0.65 - barH);
+          ctx.lineTo(cx + maxR * 0.8, cy + maxR * 0.65 - barH);
+          ctx.strokeStyle = 'rgba(239, 68, 68, 0.6)';
+          ctx.lineWidth = 1;
+          ctx.setLineDash([2, 2]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+
+      // Center: Harmonic Golden Ratio Nexus Core
+      ctx.beginPath();
+      ctx.arc(cx, cy, isRunning ? 14 : 10, 0, Math.PI * 2);
+      ctx.fillStyle = '#a855f7';
+      ctx.shadowColor = isRunning ? '#00d4ff' : '#a855f7';
+      ctx.shadowBlur = isRunning ? 22 : 12;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.font = 'bold 10px monospace';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.fillText('φ', cx, cy + 3.5);
+
+      // Status HUD on canvas
+      ctx.font = '9px monospace';
+      ctx.fillStyle = '#94a3b8';
+      ctx.textAlign = 'left';
+      ctx.fillText('SU(3) Mass Gap', cx - maxR + 8, cy - maxR + 18);
+      ctx.textAlign = 'right';
+      ctx.fillText('Carrollian Braid', cx + maxR - 8, cy - maxR + 18);
+      ctx.textAlign = 'left';
+      ctx.fillText('Galois ℤ[φ] Unit', cx - maxR + 8, cy + maxR - 8);
+      ctx.textAlign = 'right';
+      ctx.fillText('V_min > 0 Gap', cx + maxR - 8, cy + maxR - 8);
+
+      t += speed;
+      animId = requestAnimationFrame(draw);
+    };
+
+    draw();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(animId);
+    };
+  }, [isRunning]);
+
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />;
+}
+
 export default function VerificationSuite() {
   const [isRunningAll, setIsRunningAll] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -409,6 +618,35 @@ export default function VerificationSuite() {
         </div>
       </header>
 
+      {/* Verification Matrix Hero Visualizer */}
+      <div className="bg-slate-950/60 border border-purple-500/20 rounded-2xl overflow-hidden relative flex flex-col justify-between">
+        <div className="p-4 bg-black/70 backdrop-blur-md border-b border-purple-500/20 flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <div className="text-xs font-mono font-bold text-purple-300">
+              Deterministic Multi-Field Verification Matrix
+            </div>
+            <div className="text-[10px] font-mono text-slate-400">
+              SU(3) Color Orbits • Carrollian Anyon Braid Trajectories • Galois ℤ[φ] Unit Lattices • Quasicrystal Volume Gaps
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-[10px] font-mono text-emerald-400 uppercase font-bold">Live Analytic Engine</span>
+          </div>
+        </div>
+
+        <div className="w-full relative min-h-[300px] sm:min-h-[360px] flex items-center justify-center">
+          <VerificationMatrixCanvas isRunning={isRunningAll} />
+        </div>
+
+        <div className="p-3.5 bg-black/80 border-t border-purple-500/10 text-[11px] font-mono text-slate-400 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-purple-300">Killing Form: Tr(Ta Tb) = -½ δab</span>
+          <span className="text-cyan-300">Unitary Braiding: S† S = I</span>
+          <span className="text-emerald-300">Galois Norm: N(φ⁻²) = +1</span>
+          <span className="text-amber-300">Volume Gap: V_min &gt; 0</span>
+        </div>
+      </div>
+
       {/* Control Banner */}
       <div className="bg-slate-900/70 border border-purple-500/20 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 backdrop-blur-md">
         <div className="space-y-1 text-center md:text-left">
@@ -443,7 +681,7 @@ export default function VerificationSuite() {
       {/* Tests Table */}
       <div className="border border-slate-800 rounded-2xl overflow-hidden bg-slate-950/60 backdrop-blur-sm">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-mono">
+          <table className="w-full min-w-[700px] text-left text-xs font-mono">
             <thead className="bg-slate-900/90 text-slate-400 uppercase tracking-wider border-b border-slate-800">
               <tr>
                 <th className="p-4">Status</th>

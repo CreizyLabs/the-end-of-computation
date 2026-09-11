@@ -1,9 +1,9 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import React, { useState, useRef, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import AuroraFlux from './components/ui/aurora-flux';
 import StarsCanvas from './components/ui/StarsCanvas';
-import NavButton from './components/ui/NavButton';
 import { useCursorReaction } from './hooks/useCursorReaction';
+import { MATHEMATICS_PAPERS, PHYSICS_PAPERS } from './data/allPapersData';
 
 // Pages
 import YangMillsMassGap from './pages/YangMillsMassGap';
@@ -12,24 +12,72 @@ import DarkEnergy from './pages/DarkEnergy';
 import QuantumGravity from './pages/QuantumGravity';
 import VerificationSuite from './pages/VerificationSuite';
 import HodgeConjecture from './pages/HodgeConjecture';
+import PaperReader from './pages/PaperReader';
 
 function Navigation() {
   const location = useLocation();
+  const navigate = useNavigate();
 
-  const navItems = [
-    { path: '/', label: 'Yang-Mills Solve', color: 'hover:text-purple-400', activeColor: 'text-purple-300 border-purple-500 bg-purple-950/40' },
-    { path: '/hodge-conjecture', label: 'Hodge Conjecture', color: 'hover:text-cyan-400', activeColor: 'text-cyan-300 border-cyan-500 bg-cyan-950/40' },
-    { path: '/black-hole-paradox', label: 'Black Hole Paradox', color: 'hover:text-cyan-400', activeColor: 'text-cyan-300 border-cyan-500 bg-cyan-950/40' },
-    { path: '/dark-energy', label: 'Dark Energy', color: 'hover:text-emerald-400', activeColor: 'text-emerald-300 border-emerald-500 bg-emerald-950/40' },
-    { path: '/quantum-gravity', label: 'Quantum Gravity', color: 'hover:text-amber-400', activeColor: 'text-amber-300 border-amber-500 bg-amber-950/40' },
-    { path: '/verification-suite', label: 'Verification Suite', color: 'hover:text-indigo-400', activeColor: 'text-indigo-300 border-indigo-500 bg-indigo-950/40' },
-  ];
+  const [isMathOpen, setIsMathOpen] = useState(false);
+  const [isPhysicsOpen, setIsPhysicsOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'math' | 'physics'>('math');
+
+  const mathRef = useRef<HTMLDivElement>(null);
+  const physicsRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (mathRef.current && !mathRef.current.contains(e.target as Node)) {
+        setIsMathOpen(false);
+      }
+      if (physicsRef.current && !physicsRef.current.contains(e.target as Node)) {
+        setIsPhysicsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close dropdowns on route change
+  useEffect(() => {
+    setIsMathOpen(false);
+    setIsPhysicsOpen(false);
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  const getMathHref = (id: string) => {
+    if (id === 'hodge-conjecture') return '/hodge-conjecture';
+    return `/papers/${id}`;
+  };
+
+  const getPhysicsHref = (id: string) => {
+    if (id === 'yang-mills' || id === 'yang_mills') return '/';
+    if (id === 'black-hole-paradox' || id === 'black_hole') return '/black-hole-paradox';
+    if (id === 'dark-energy') return '/dark-energy';
+    if (id === 'quantum-gravity' || id === 'quantum_gravity') return '/quantum-gravity';
+    return `/papers/${id}`;
+  };
+
+  const isMathActive =
+    location.pathname === '/hodge-conjecture' ||
+    MATHEMATICS_PAPERS.some((p) => location.pathname === `/papers/${p.id}`);
+
+  const isPhysicsActive =
+    location.pathname === '/' ||
+    location.pathname === '/black-hole-paradox' ||
+    location.pathname === '/dark-energy' ||
+    location.pathname === '/quantum-gravity' ||
+    PHYSICS_PAPERS.some((p) => location.pathname === `/papers/${p.id}`);
+
+  const isVerificationActive = location.pathname === '/verification-suite';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-black/85 backdrop-blur-md border-b border-slate-800/80">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-slate-800/80">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
         {/* Brand / Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
+        <Link to="/" className="flex items-center gap-3 group shrink-0">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
             <span className="font-mono font-black text-white text-sm">φ</span>
           </div>
@@ -43,43 +91,216 @@ function Navigation() {
           </div>
         </Link>
 
-        {/* Navigation links */}
-        <nav className="hidden lg:flex items-center gap-3">
-          {navItems.map(item => {
-            const isActive = location.pathname === item.path;
-            return (
-              <NavButton key={item.path} to={item.path} active={isActive}>
-                {item.label}
-              </NavButton>
-            );
-          })}
+        {/* Desktop Navigation Links */}
+        <nav className="hidden lg:flex items-center gap-2">
+          {/* Mathematics Dropdown */}
+          <div className="relative" ref={mathRef}>
+            <button
+              onClick={() => {
+                setIsMathOpen(!isMathOpen);
+                setIsPhysicsOpen(false);
+              }}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all border cursor-pointer ${
+                isMathActive
+                  ? 'bg-cyan-950/70 border-cyan-500/60 text-cyan-300 shadow-md shadow-cyan-900/20'
+                  : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
+              }`}
+            >
+              <span className="text-cyan-400">∑</span>
+              <span>Mathematics ({MATHEMATICS_PAPERS.length})</span>
+              <span className={`text-[10px] transition-transform duration-200 ${isMathOpen ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
+
+            {isMathOpen && (
+              <div className="absolute left-0 mt-2 w-96 max-h-[75vh] overflow-y-auto bg-slate-950/95 backdrop-blur-2xl border border-cyan-500/30 rounded-2xl shadow-2xl p-2.5 z-50 divide-y divide-slate-800/60 animate-fadeIn">
+                <div className="px-3 py-2 text-[10px] font-mono text-cyan-400 uppercase tracking-widest font-bold">
+                  Mathematical Foundations &amp; Conjectures
+                </div>
+                {MATHEMATICS_PAPERS.map((paper) => {
+                  const href = getMathHref(paper.id);
+                  const isCur = location.pathname === href;
+                  return (
+                    <Link
+                      key={paper.id}
+                      to={href}
+                      className={`block p-2.5 rounded-xl transition-all ${
+                        isCur
+                          ? 'bg-cyan-950/60 text-cyan-200 border border-cyan-500/40'
+                          : 'hover:bg-slate-900/80 text-slate-200 hover:text-white'
+                      }`}
+                    >
+                      <div className="text-xs font-mono font-bold">{paper.shortTitle}</div>
+                      <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{paper.subtitle}</div>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Physics Dropdown */}
+          <div className="relative" ref={physicsRef}>
+            <button
+              onClick={() => {
+                setIsPhysicsOpen(!isPhysicsOpen);
+                setIsMathOpen(false);
+              }}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all border cursor-pointer ${
+                isPhysicsActive
+                  ? 'bg-purple-950/70 border-purple-500/60 text-purple-300 shadow-md shadow-purple-900/20'
+                  : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
+              }`}
+            >
+              <span className="text-purple-400">⚛</span>
+              <span>Physics ({PHYSICS_PAPERS.length})</span>
+              <span className={`text-[10px] transition-transform duration-200 ${isPhysicsOpen ? 'rotate-180' : ''}`}>
+                ▼
+              </span>
+            </button>
+
+            {isPhysicsOpen && (
+              <div className="absolute left-0 mt-2 w-[540px] max-h-[75vh] overflow-y-auto bg-slate-950/95 backdrop-blur-2xl border border-purple-500/30 rounded-2xl shadow-2xl p-2.5 z-50 animate-fadeIn">
+                <div className="px-3 py-2 text-[10px] font-mono text-purple-400 uppercase tracking-widest font-bold border-b border-slate-800/60 mb-2">
+                  Unified Theoretical Physics Library
+                </div>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {PHYSICS_PAPERS.map((paper) => {
+                    const href = getPhysicsHref(paper.id);
+                    const isCur = location.pathname === href;
+                    return (
+                      <Link
+                        key={paper.id}
+                        to={href}
+                        className={`block p-2.5 rounded-xl transition-all ${
+                          isCur
+                            ? 'bg-purple-950/60 text-purple-200 border border-purple-500/40'
+                            : 'hover:bg-slate-900/80 text-slate-200 hover:text-white'
+                        }`}
+                      >
+                        <div className="text-xs font-mono font-bold truncate">{paper.shortTitle}</div>
+                        <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">{paper.subtitle}</div>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Verification Suite */}
+          <Link
+            to="/verification-suite"
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-mono font-bold transition-all border cursor-pointer ${
+              isVerificationActive
+                ? 'bg-indigo-950/70 border-indigo-500/60 text-indigo-300 shadow-md shadow-indigo-900/20'
+                : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:text-white hover:border-slate-700'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Verification Suite</span>
+          </Link>
         </nav>
 
-        {/* Metric Badges */}
-        <div className="hidden sm:flex items-center gap-2 font-mono text-[11px]">
+        {/* Metric Badges (Desktop) */}
+        <div className="hidden xl:flex items-center gap-2 font-mono text-[11px]">
           <span className="px-2 py-0.5 rounded bg-purple-950/70 border border-purple-500/40 text-purple-300">
             SU(3) Δ &gt; 0
           </span>
           <span className="px-2 py-0.5 rounded bg-cyan-950/70 border border-cyan-500/40 text-cyan-300">
-            S†S = 1
+            S†S = I
           </span>
           <span className="px-2 py-0.5 rounded bg-emerald-950/70 border border-emerald-500/40 text-emerald-300">
             Ω_Λ = 0.685
           </span>
         </div>
+
+        {/* Mobile Hamburger Toggle */}
+        <div className="lg:hidden flex items-center gap-2">
+          <Link
+            to="/verification-suite"
+            className="px-2.5 py-1 rounded bg-indigo-950/70 border border-indigo-500/40 text-indigo-300 text-[11px] font-mono font-bold flex items-center gap-1.5"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+            Verify
+          </Link>
+
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 hover:text-white font-mono text-sm"
+            aria-label="Toggle Menu"
+          >
+            {isMobileMenuOpen ? '✕' : '☰ Papers'}
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Sub-Navigation Bar */}
-      <div className="lg:hidden flex items-center overflow-x-auto px-4 py-2 gap-2 border-t border-slate-900 bg-black/95">
-        {navItems.map(item => {
-          const isActive = location.pathname === item.path;
-          return (
-            <NavButton key={item.path} to={item.path} active={isActive}>
-              {item.label}
-            </NavButton>
-          );
-        })}
-      </div>
+      {/* Mobile Drawer Menu */}
+      {isMobileMenuOpen && (
+        <div className="lg:hidden max-h-[80vh] overflow-y-auto bg-black/95 backdrop-blur-2xl border-t border-slate-800 px-4 py-4 space-y-4 animate-fadeIn">
+          <div className="flex border-b border-slate-800 gap-2 pb-2">
+            <button
+              onClick={() => setMobileTab('math')}
+              className={`flex-1 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+                mobileTab === 'math'
+                  ? 'bg-cyan-950 border border-cyan-500/50 text-cyan-300'
+                  : 'bg-slate-900 text-slate-400'
+              }`}
+            >
+              Mathematics ({MATHEMATICS_PAPERS.length})
+            </button>
+            <button
+              onClick={() => setMobileTab('physics')}
+              className={`flex-1 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+                mobileTab === 'physics'
+                  ? 'bg-purple-950 border border-purple-500/50 text-purple-300'
+                  : 'bg-slate-900 text-slate-400'
+              }`}
+            >
+              Physics ({PHYSICS_PAPERS.length})
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {mobileTab === 'math' &&
+              MATHEMATICS_PAPERS.map((paper) => {
+                const href = getMathHref(paper.id);
+                return (
+                  <button
+                    key={paper.id}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      navigate(href);
+                    }}
+                    className="w-full text-left p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-200 active:bg-cyan-950/60 block"
+                  >
+                    <div className="text-xs font-mono font-bold text-cyan-300">{paper.shortTitle}</div>
+                    <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{paper.subtitle}</div>
+                  </button>
+                );
+              })}
+
+            {mobileTab === 'physics' &&
+              PHYSICS_PAPERS.map((paper) => {
+                const href = getPhysicsHref(paper.id);
+                return (
+                  <button
+                    key={paper.id}
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      navigate(href);
+                    }}
+                    className="w-full text-left p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-200 active:bg-purple-950/60 block"
+                  >
+                    <div className="text-xs font-mono font-bold text-purple-300">{paper.shortTitle}</div>
+                    <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{paper.subtitle}</div>
+                  </button>
+                );
+              })}
+          </div>
+        </div>
+      )}
     </header>
   );
 }
@@ -90,7 +311,7 @@ function Layout({ children }: { children: React.ReactNode }) {
   // Enable interactive cursor reactive float and soft glow across all site components
   useCursorReaction();
 
-  React.useEffect(() => {
+  useEffect(() => {
     let debounceTimer: any = null;
     const renderMath = () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,14 +367,14 @@ function Layout({ children }: { children: React.ReactNode }) {
         <StarsCanvas className="w-full h-full pointer-events-none" />
       </div>
 
-      {/* Background Dimming Layer (Dims background 20% without touching Aurora Flux shader) */}
+      {/* Background Dimming Layer */}
       <div className="fixed inset-0 pointer-events-none z-[2] bg-black/20" />
 
       {/* Fixed Navigation */}
       <Navigation />
 
-      {/* Main Content Area: Smooth vertical scroll */}
-      <main className="relative z-20 flex-1 w-full pt-20 lg:pt-20 pb-16">
+      {/* Main Content Area: Smooth vertical scroll with responsive padding */}
+      <main className="relative z-20 flex-1 w-full pt-20 sm:pt-24 pb-16">
         {children}
       </main>
 
@@ -164,7 +385,7 @@ function Layout({ children }: { children: React.ReactNode }) {
             The End of Computation • Preprints by <strong className="text-slate-300">Jason Emerick</strong> (Creizy Labs)
           </div>
           <div className="flex items-center gap-4 text-[11px]">
-            <span>Clay Millennium Resolution</span>
+            <span>Clay Millennium Resolutions</span>
             <span>•</span>
             <span>Non-Local Horizon Holography</span>
             <span>•</span>
@@ -182,11 +403,13 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<YangMillsMassGap />} />
+          <Route path="/yang-mills" element={<YangMillsMassGap />} />
           <Route path="/hodge-conjecture" element={<HodgeConjecture />} />
           <Route path="/black-hole-paradox" element={<BlackHoleParadox />} />
           <Route path="/dark-energy" element={<DarkEnergy />} />
           <Route path="/quantum-gravity" element={<QuantumGravity />} />
           <Route path="/verification-suite" element={<VerificationSuite />} />
+          <Route path="/papers/:id" element={<PaperReader />} />
           <Route path="*" element={<YangMillsMassGap />} />
         </Routes>
       </Layout>
