@@ -396,39 +396,36 @@ export default function HodgeConjecture() {
       </div>
 
       {/* Sub-Navigation Tabs */}
-      <div className="flex items-center overflow-x-auto border-b border-slate-800 gap-4 sm:gap-6 text-xs sm:text-sm font-mono font-medium pb-2 scrollbar-none whitespace-nowrap">
+      <div className="flex flex-wrap sm:flex-nowrap items-center border-b border-slate-800 gap-2 sm:gap-6 text-xs sm:text-sm font-mono font-medium pb-2.5 touch-pan-x">
         <button
           onClick={() => setActiveTab('overview')}
-          className={`pb-2 transition-colors relative whitespace-nowrap cursor-pointer ${
-            activeTab === 'overview' ? 'text-cyan-400' : 'text-slate-400 hover:text-slate-200'
+          className={`px-3 py-2 sm:px-0 sm:py-0 sm:pb-2 rounded-lg sm:rounded-none border sm:border-0 sm:border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'overview'
+              ? 'bg-cyan-950/80 sm:bg-transparent border-cyan-400 text-cyan-300 font-bold'
+              : 'border-slate-800 sm:border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          Overview & Core Formulations
-          {activeTab === 'overview' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400 shadow-sm shadow-cyan-400" />
-          )}
+          Overview &amp; Core Formulations
         </button>
         <button
           onClick={() => setActiveTab('proof')}
-          className={`pb-3 transition-colors relative ${
-            activeTab === 'proof' ? 'text-cyan-400' : 'text-slate-400 hover:text-slate-200'
+          className={`px-3 py-2 sm:px-0 sm:py-0 sm:pb-2 rounded-lg sm:rounded-none border sm:border-0 sm:border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'proof'
+              ? 'bg-cyan-950/80 sm:bg-transparent border-cyan-400 text-cyan-300 font-bold'
+              : 'border-slate-800 sm:border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           Step-by-Step Proof Architecture
-          {activeTab === 'proof' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400 shadow-sm shadow-cyan-400" />
-          )}
         </button>
         <button
           onClick={() => setActiveTab('axioms')}
-          className={`pb-3 transition-colors relative ${
-            activeTab === 'axioms' ? 'text-cyan-400' : 'text-slate-400 hover:text-slate-200'
+          className={`px-3 py-2 sm:px-0 sm:py-0 sm:pb-2 rounded-lg sm:rounded-none border sm:border-0 sm:border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+            activeTab === 'axioms'
+              ? 'bg-cyan-950/80 sm:bg-transparent border-cyan-400 text-cyan-300 font-bold'
+              : 'border-slate-800 sm:border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
-          Geometric & Lattice Invariants
-          {activeTab === 'axioms' && (
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-cyan-400 shadow-sm shadow-cyan-400" />
-          )}
+          Geometric &amp; Lattice Invariants
         </button>
       </div>
 

@@ -75,17 +75,17 @@ function Navigation() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-black/90 backdrop-blur-md border-b border-slate-800/80">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand / Logo */}
-        <Link to="/" className="flex items-center gap-3 group shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
+        <Link to="/" className="flex items-center gap-2.5 sm:gap-3 group min-w-0 shrink">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-cyan-500 flex items-center justify-center shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform shrink-0">
             <span className="font-mono font-black text-white text-sm">φ</span>
           </div>
-          <div className="flex flex-col">
-            <span className="font-bold text-sm tracking-wider text-white uppercase font-mono">
+          <div className="flex flex-col min-w-0">
+            <span className="font-bold text-xs sm:text-sm tracking-wider text-white uppercase font-mono truncate">
               The End of Computation
             </span>
-            <span className="text-[10px] font-mono text-purple-400 tracking-widest uppercase">
+            <span className="text-[9px] sm:text-[10px] font-mono text-purple-400 tracking-widest uppercase truncate hidden sm:block">
               Unified Theoretical Physics
             </span>
           </div>
@@ -216,56 +216,75 @@ function Navigation() {
           </span>
         </div>
 
-        {/* Mobile Hamburger Toggle */}
-        <div className="lg:hidden flex items-center gap-2">
-          <Link
-            to="/verification-suite"
-            className="px-2.5 py-1 rounded bg-indigo-950/70 border border-indigo-500/40 text-indigo-300 text-[11px] font-mono font-bold flex items-center gap-1.5"
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            Verify
-          </Link>
-
+        {/* Mobile Action Controls */}
+        <div className="lg:hidden flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 hover:text-white font-mono text-sm"
-            aria-label="Toggle Menu"
+            className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-purple-900 via-indigo-900 to-cyan-950 border border-purple-500/60 text-white hover:text-cyan-300 font-mono text-xs font-bold flex items-center gap-1.5 shadow-md shadow-purple-950/40 active:scale-95 transition-all cursor-pointer shrink-0"
+            aria-label="Toggle Papers Menu"
           >
-            {isMobileMenuOpen ? '✕' : '☰ Papers'}
+            <span className="text-cyan-400 font-black">{isMobileMenuOpen ? '✕' : '☰'}</span>
+            <span>Papers</span>
+            <span className="text-[10px] px-1 py-0.2 rounded bg-purple-500/50 text-purple-200 border border-purple-400/40">17</span>
           </button>
+
+          <Link
+            to="/verification-suite"
+            className="px-2 py-1.5 rounded-lg bg-indigo-950/80 border border-indigo-500/40 text-indigo-300 text-[11px] font-mono font-bold flex items-center gap-1 shrink-0 active:scale-95"
+            title="Verification Suite"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="hidden xs:inline">Verify</span>
+          </Link>
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden max-h-[80vh] overflow-y-auto bg-black/95 backdrop-blur-2xl border-t border-slate-800 px-4 py-4 space-y-4 animate-fadeIn">
+        <div className="lg:hidden max-h-[85vh] overflow-y-auto bg-black/95 backdrop-blur-2xl border-t border-slate-800 px-4 py-4 space-y-4 animate-fadeIn">
+          {/* Quick Header in Mobile Menu */}
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+            <span className="text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
+              Browse Monographs (17)
+            </span>
+            <Link
+              to="/verification-suite"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="px-2.5 py-1 rounded-lg bg-indigo-950/90 border border-indigo-500/50 text-indigo-300 text-xs font-mono font-bold flex items-center gap-1.5"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Verification Suite
+            </Link>
+          </div>
+
           <div className="flex border-b border-slate-800 gap-2 pb-2">
             <button
               onClick={() => setMobileTab('math')}
-              className={`flex-1 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+              className={`flex-1 py-2 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer ${
                 mobileTab === 'math'
-                  ? 'bg-cyan-950 border border-cyan-500/50 text-cyan-300'
-                  : 'bg-slate-900 text-slate-400'
+                  ? 'bg-cyan-950 border border-cyan-500/60 text-cyan-300 shadow-md shadow-cyan-950/50'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200'
               }`}
             >
               Mathematics ({MATHEMATICS_PAPERS.length})
             </button>
             <button
               onClick={() => setMobileTab('physics')}
-              className={`flex-1 py-1.5 rounded-lg font-mono text-xs font-bold transition-all ${
+              className={`flex-1 py-2 rounded-lg font-mono text-xs font-bold transition-all cursor-pointer ${
                 mobileTab === 'physics'
-                  ? 'bg-purple-950 border border-purple-500/50 text-purple-300'
-                  : 'bg-slate-900 text-slate-400'
+                  ? 'bg-purple-950 border border-purple-500/60 text-purple-300 shadow-md shadow-purple-950/50'
+                  : 'bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200'
               }`}
             >
               Physics ({PHYSICS_PAPERS.length})
             </button>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 pb-8">
             {mobileTab === 'math' &&
               MATHEMATICS_PAPERS.map((paper) => {
                 const href = getMathHref(paper.id);
+                const isCur = location.pathname === href;
                 return (
                   <button
                     key={paper.id}
@@ -273,10 +292,17 @@ function Navigation() {
                       setIsMobileMenuOpen(false);
                       navigate(href);
                     }}
-                    className="w-full text-left p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-200 active:bg-cyan-950/60 block"
+                    className={`w-full text-left p-3.5 rounded-xl border transition-all block cursor-pointer active:scale-[0.98] ${
+                      isCur
+                        ? 'bg-cyan-950/80 border-cyan-500/60 text-cyan-200 shadow-md shadow-cyan-950/40'
+                        : 'bg-slate-900/80 border-slate-800 text-slate-200 active:bg-cyan-950/40 hover:border-slate-700'
+                    }`}
                   >
-                    <div className="text-xs font-mono font-bold text-cyan-300">{paper.shortTitle}</div>
-                    <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{paper.subtitle}</div>
+                    <div className="text-xs font-mono font-bold text-cyan-300 flex items-center justify-between">
+                      <span>{paper.shortTitle}</span>
+                      {isCur && <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">CURRENT</span>}
+                    </div>
+                    <div className="text-[11px] text-slate-400 line-clamp-2 mt-1 leading-relaxed">{paper.subtitle}</div>
                   </button>
                 );
               })}
@@ -284,6 +310,7 @@ function Navigation() {
             {mobileTab === 'physics' &&
               PHYSICS_PAPERS.map((paper) => {
                 const href = getPhysicsHref(paper.id);
+                const isCur = location.pathname === href;
                 return (
                   <button
                     key={paper.id}
@@ -291,10 +318,17 @@ function Navigation() {
                       setIsMobileMenuOpen(false);
                       navigate(href);
                     }}
-                    className="w-full text-left p-3 rounded-xl bg-slate-900/70 border border-slate-800 text-slate-200 active:bg-purple-950/60 block"
+                    className={`w-full text-left p-3.5 rounded-xl border transition-all block cursor-pointer active:scale-[0.98] ${
+                      isCur
+                        ? 'bg-purple-950/80 border-purple-500/60 text-purple-200 shadow-md shadow-purple-950/40'
+                        : 'bg-slate-900/80 border-slate-800 text-slate-200 active:bg-purple-950/40 hover:border-slate-700'
+                    }`}
                   >
-                    <div className="text-xs font-mono font-bold text-purple-300">{paper.shortTitle}</div>
-                    <div className="text-[11px] text-slate-400 line-clamp-1 mt-0.5">{paper.subtitle}</div>
+                    <div className="text-xs font-mono font-bold text-purple-300 flex items-center justify-between">
+                      <span>{paper.shortTitle}</span>
+                      {isCur && <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/40">CURRENT</span>}
+                    </div>
+                    <div className="text-[11px] text-slate-400 line-clamp-2 mt-1 leading-relaxed">{paper.subtitle}</div>
                   </button>
                 );
               })}

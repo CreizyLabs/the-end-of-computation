@@ -371,33 +371,33 @@ export default function BlackHoleParadox() {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center overflow-x-auto border-b border-slate-800 gap-4 sm:gap-6 text-xs sm:text-sm font-mono font-medium pb-2 scrollbar-none whitespace-nowrap">
+      <div className="flex flex-wrap sm:flex-nowrap items-center border-b border-slate-800 gap-2 sm:gap-6 text-xs sm:text-sm font-mono font-medium pb-2.5 touch-pan-x">
         <button
           onClick={() => setActiveTab('resolution')}
-          className={`pb-2 border-b-2 transition-colors whitespace-nowrap cursor-pointer ${
+          className={`px-3 py-2 sm:px-0 sm:py-0 sm:pb-2 rounded-lg sm:rounded-none border sm:border-0 sm:border-b-2 transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'resolution'
-              ? 'border-cyan-400 text-cyan-300 font-bold'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'bg-cyan-950/80 sm:bg-transparent border-cyan-400 text-cyan-300 font-bold'
+              : 'border-slate-800 sm:border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           1. The Paradox Resolution
         </button>
         <button
           onClick={() => setActiveTab('carrollian')}
-          className={`pb-3 border-b-2 transition-colors ${
+          className={`px-3 py-2 sm:px-0 sm:py-0 sm:pb-2 rounded-lg sm:rounded-none border sm:border-0 sm:border-b-2 transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'carrollian'
-              ? 'border-cyan-400 text-cyan-300 font-bold'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'bg-cyan-950/80 sm:bg-transparent border-cyan-400 text-cyan-300 font-bold'
+              : 'border-slate-800 sm:border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           2. Ultra-Local Carrollian Geometry
         </button>
         <button
           onClick={() => setActiveTab('braiding')}
-          className={`pb-3 border-b-2 transition-colors ${
+          className={`px-3 py-2 sm:px-0 sm:py-0 sm:pb-2 rounded-lg sm:rounded-none border sm:border-0 sm:border-b-2 transition-all whitespace-nowrap cursor-pointer ${
             activeTab === 'braiding'
-              ? 'border-cyan-400 text-cyan-300 font-bold'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
+              ? 'bg-cyan-950/80 sm:bg-transparent border-cyan-400 text-cyan-300 font-bold'
+              : 'border-slate-800 sm:border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           3. Fibonacci Anyon Braiding

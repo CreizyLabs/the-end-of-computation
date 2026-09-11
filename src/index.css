@@ -74,3 +74,50 @@
     border-color: rgba(56, 189, 248, 0.45);
   }
 }
+
+/* Touch-friendly range sliders (tabs/knobs) for mobile & desktop */
+input[type="range"] {
+  touch-action: pan-x;
+  height: 8px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #00d4ff;
+  cursor: grab;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+  touch-action: pan-x;
+}
+
+input[type="range"]:active::-webkit-slider-thumb {
+  cursor: grabbing;
+  transform: scale(1.15);
+  background: #38bdf8;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #00d4ff;
+  cursor: grab;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.6);
+  touch-action: pan-x;
+}
+
+/* Smooth horizontal touch scrolling */
+.touch-pan-x,
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+}
